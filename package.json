@@ -1,0 +1,13 @@
+{
+  "name": "job-shob-main",
+  "version": "1.0.0",
+  "description": "Job Shob - Full Stack Application",
+  "main": "server/src/index.js",
+  "scripts": {
+    "start": "cd server && npm start",
+    "dev": "cd server && npm run dev",
+    "install-all": "npm install && cd server && npm install"
+  },
+  "author": "",
+  "license": "MIT"
+}
