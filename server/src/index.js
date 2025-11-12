@@ -32,7 +32,31 @@ async function start() {
     await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 5000 });
     console.log('Connected to MongoDB');
   } catch (err) {
-    console.error('MongoDB connection error:', err && err.message ? err.message : err);
+    const msg = err && err.message ? err.message : String(err);
+    console.error('MongoDB connection error:', msg);
+
+    // Helpful diagnostic for common Atlas DNS SRV failures
+    if (msg.includes('querySrv ENOTFOUND') || msg.includes('ENOTFOUND')) {
+      console.error('\nDetected DNS SRV lookup failure for your MongoDB connection string.');
+      console.error('This usually means one of:');
+      console.error('- The MONGO_URI environment variable is missing or contains placeholders (e.g. <username>, <password>, <cluster>).');
+      console.error('- The Atlas cluster hostname is incorrect or not reachable from the hosting environment.');
+      console.error('- Network access in MongoDB Atlas is restricted (no IP whitelist for Render).');
+      console.error('\nSuggested fixes:');
+      console.error("1) In your Render dashboard, set the `MONGO_URI` env var to the exact Atlas connection string, for example:");
+      console.error("   mongodb+srv://username:password@your-cluster-name.mongodb.net/jobshob?retryWrites=true&w=majority");
+      console.error("   -> Replace 'username', 'password' and 'your-cluster-name' with real values (remove angle brackets).\n");
+      console.error("2) In MongoDB Atlas UI, go to Network Access and add an IP access entry. For testing you can allow '0.0.0.0/0' (allows all IPs).\n");
+      console.error("3) If your deployment environment blocks SRV DNS lookups, try using the standard connection string (non-SRV) provided in Atlas under 'Connect -> Drivers -> More Options' (it lists host:port style URIs).");
+
+      if (process.env.DEBUG_MONGO_URI === 'true') {
+        const val = config.mongoUri || process.env.MONGO_URI || '<not-set>';
+        // mask password if present
+        const masked = val.replace(/(mongodb(?:\+srv)?:\/\/)([^:]+):([^@]+)@/, (m, p, u, pw) => `${p}${u}:*****@`);
+        console.error('\nCurrent MONGO_URI (masked):', masked);
+      }
+    }
+
     process.exit(1);
   }
 

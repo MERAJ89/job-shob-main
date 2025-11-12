@@ -129,6 +129,30 @@ This allows the frontend to communicate with your Render backend.
 - Check Network Access whitelist in MongoDB Atlas
 - Verify MONGO_URI includes username and password
 
+### DNS SRV error: "querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net"
+
+If during deployment you see an error like:
+
+```
+querySrv ENOTFOUND _mongodb._tcp.cluster.mongodb.net
+```
+
+This means the DNS SRV lookup for your Atlas cluster failed. Common causes and fixes:
+
+- Ensure `MONGO_URI` is set exactly to the Atlas connection string (no placeholders). Example:
+
+   mongodb+srv://username:password@your-cluster-name.mongodb.net/jobshob?retryWrites=true&w=majority
+
+   Replace `username`, `password`, and `your-cluster-name` (do NOT include `<` or `>` characters).
+
+- In MongoDB Atlas, go to **Network Access** and add an IP whitelist entry. For quick testing you can add `0.0.0.0/0` (allows all), but for production whitelist Render's IPs or use a private network.
+
+- If your hosting environment has restricted DNS or blocks SRV lookups, use the non-SRV connection string (mongodb://) provided by Atlas under **Connect → Drivers → More Options**.
+
+- To debug, temporarily set an env variable in Render: `DEBUG_MONGO_URI=true` — the server will print the masked `MONGO_URI` into the logs to help diagnose formatting issues.
+
+If you need help copying the correct connection string from Atlas, tell me and I will provide the exact steps.
+
 ---
 
 ## Environment Variables Reference
