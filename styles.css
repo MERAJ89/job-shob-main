@@ -1,0 +1,605 @@
+/* Reset-ish */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#fff;color:#1a1a1a;line-height:1.5}
+.container{max-width:1000px;margin:0 auto;padding:1rem}
+
+/* Premium hero */
+.home-header h1{font-size:1.9rem;margin:0;color:#061028;letter-spacing:-0.01em}
+.lead{font-size:1.05rem}
+
+/* Header */
+.site-header{background:#0b1220;color:#fff;position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,0.06)}
+.header-inner{
+    display:flex;
+    align-items:center;
+    padding:.75rem 1rem;
+}
+.brand{
+    text-decoration:none;
+    margin-right:2rem;
+    display:flex;
+    align-items:center;
+}
+.brand-logo{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    transition:transform 0.2s ease;
+}
+.brand:hover .brand-logo{
+    transform:scale(1.05);
+}
+.nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex:1;
+}
+.nav-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    gap:1rem;
+}
+.nav-link{
+    color:rgba(255,255,255,0.9);
+    text-decoration:none;
+    padding:.5rem .75rem;
+    border-radius:6px;
+    font-weight:600;
+    letter-spacing:0.01em;
+}
+.nav-link:hover{
+    background:rgba(255,255,255,0.04);
+    color:#fff;
+}
+.nav-toggle{
+    display:none;
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    color:#fff;
+    padding:.4rem .6rem;
+    border-radius:6px
+}
+.login-btn{
+    background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.2);
+    color:#fff;
+    padding:.5rem 1.25rem;
+    border-radius:6px;
+    margin-left:auto;
+    font-size:0.9rem;
+    font-weight:500;
+    cursor:pointer;
+    transition:all 0.2s ease;
+    white-space:nowrap;
+}
+.login-btn:hover{
+    background:rgba(255,255,255,0.15);
+    border-color:rgba(255,255,255,0.3);
+    transform:translateY(-1px);
+}
+.login-btn:active{
+    transform:translateY(0);
+}
+
+/* Sections */
+.section{padding:2rem 0}
+.home-header{display:flex;flex-direction:column;gap:.25rem}
+.lead{color:red}
+
+.section p{
+  font-size: larger;
+}
+
+.card{background:#fff;border-radius:10px;padding:1rem;margin:1rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.admin-card{display:flex;flex-direction:column;gap:.75rem}
+.admin-block{padding:.5rem}
+.hidden{display:none}
+.modal-backdrop{position:fixed;inset:0;background:rgba(3,7,18,0.5);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;visibility:hidden;transition:all 0.3s ease}
+.modal-backdrop.visible{opacity:1;visibility:visible}
+.modal{background:linear-gradient(180deg,#ffffff,#fbfdff);border-radius:12px;max-width:720px;width:100%;box-shadow:0 20px 50px rgba(2,6,23,0.6);position:relative}
+.modal-close{
+    position:absolute;
+    right:14px;
+    top:12px;
+    background:transparent;
+    border:none;
+    font-size:1.25rem;
+    cursor:pointer;
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    color:#475569;
+    transition:all 0.2s ease;
+}
+.modal-close:hover{
+    background:rgba(0,0,0,0.05);
+    color:#0b1220;
+}
+.modal-close:active{
+    background:rgba(0,0,0,0.1);
+}
+.modal-content{
+    padding:1.25rem;
+    opacity:0;
+    transform:translateY(20px);
+    transition:all 0.3s ease;
+}
+.modal-content.visible{
+    opacity:1;
+    transform:translateY(0);
+}
+.modal h3{
+    margin:0 0 .5rem;
+    font-size:1.15rem;
+}
+
+/* Modal owner panel: keep panel on top and make it scroll internally when content grows
+   so buttons and headers remain visible and layout doesn't break. */
+#modal-owner-panel{
+  z-index:60; /* ensure it's stacked above other modal content if needed */
+  max-height:60vh; /* constrain height on large screens */
+  overflow-y:auto; /* allow vertical scrolling inside the panel */
+  padding-right:.5rem; /* room for scrollbars so content won't be overlapped */
+}
+
+/* Owner links list: scroll independently so adding many links doesn't push controls */
+#owner-links-list{
+  max-height:44vh;
+  overflow-y:auto;
+  display:grid;
+  gap:.5rem;
+  padding-right:.4rem;
+}
+
+/* Keep important controls fixed in flow so they don't shrink when scrolling content */
+#modal-owner-panel .form-actions,
+#modal-owner-panel .owner-header{
+  flex:0 0 auto;
+}
+
+@media (max-width:720px){
+  /* On small screens, reduce max heights so the modal fits well */
+  #modal-owner-panel{ max-height:68vh }
+  #owner-links-list{ max-height:40vh }
+}
+
+.change-password input{width:100%}
+
+/* subtle transitions and micro-interactions */
+.btn, .settings-btn, input {transition:all .18s ease}
+.btn:hover{transform:translateY(-2px)}
+
+/* larger link card with accent */
+.link-item{padding:1rem;border-left:4px solid #0b1220}
+.link-title{font-size:1.03rem}
+
+
+.owner-header{display:flex;justify-content:space-between;align-items:center}
+.owner-header h4{margin:0}
+
+/* Owner links listing inside modal */
+#owner-links-list{display:grid;gap:.5rem;margin-top:.75rem}
+.owner-link-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem;border-radius:8px;background:#f8fafc;border:1px solid #eef2f7}
+
+.form-row{display:flex;gap:.5rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 180px;gap:.5rem;align-items:end}
+.form-actions{display:flex}
+input{padding:.6rem .7rem;border:1px solid #e6e9ef;border-radius:8px;font-size:0.95rem}
+
+.owner-header{display:flex;justify-content:space-between;align-items:center}
+.btn{background:#0b1220;color:#fff;border:none;padding:.55rem .85rem;border-radius:8px;cursor:pointer}
+.btn-ghost{background:transparent;border:1px solid #e6e9ef;color:#0b1220}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+.links-list{display:grid;gap:.75rem;margin-top:1rem}
+.link-item{background:#fff;padding:.85rem;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid #eef2f7}
+.link-meta{display:flex;flex-direction:column}
+.link-title{font-weight:600;color:#0055cc;text-decoration:underline}
+.link-title:hover{color:#003d99;text-decoration:underline}
+.link-title:visited{color:#004db3}
+.link-url{color:#4a4a4a;font-size:.9rem}
+.link-actions{display:flex;gap:.5rem}
+.muted{color:#666666}
+.small{font-size:.85rem}
+
+/* Contact Form */
+.contact-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c2c2c;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e6e9ef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0055cc;
+  box-shadow: 0 0 0 3px rgba(0,85,204,0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.contact-form .form-actions {
+  margin-top: 2rem;
+}
+
+.contact-form .btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .contact-form {
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+}
+
+/* Videos section */
+.videos-section { padding-top: 2rem; padding-bottom: 1rem; }
+.videos-section h2 { margin-top: 0; color: #061028; }
+.videos-section .muted { margin-bottom: 1rem; }
+
+/* Pinned video: larger, full-width player shown before the grid */
+.pinned-video {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+  border: 1px solid #eef2f7;
+  margin-bottom: 1rem;
+}
+.pinned-video .video-embed { padding-top: 56.25%; }
+.pinned-video .video-meta { padding: 0.75rem 1rem; display:flex;justify-content:space-between;align-items:center; }
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* PDFs section */
+.pdfs-section { padding-top: 2rem; padding-bottom: 1rem; }
+.pdfs-section h2 { margin-top: 0; color: #061028; }
+.pdfs-section .muted { margin-bottom: 1rem; }
+
+.pdf-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pdf-card { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.85rem; border-radius:10px; border:1px solid #eef2f7; background:#fff }
+.pdf-meta { display:flex; align-items:center; gap:0.75rem }
+.pdf-icon { width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:8px; background:linear-gradient(180deg,#fff,#fbfdff); box-shadow:0 6px 18px rgba(2,6,23,0.04); color:#d9534f }
+.pdf-icon i{font-size:1.25rem}
+.pdf-details .title{font-weight:700;color:#061028}
+.pdf-details .pdf-url{font-size:.9rem;color:#666}
+.pdf-actions{display:flex;gap:.5rem;align-items:center}
+
+@media (max-width:980px){
+  .pdf-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:720px){
+  .pdf-grid{grid-template-columns:1fr}
+  .pdf-card{flex-direction:row;align-items:center}
+}
+
+.video-card {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  border: 1px solid #eef2f7;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-embed {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 aspect */
+  background: #000;
+}
+.video-embed iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-meta { padding: 0.75rem 1rem; display:flex;justify-content:space-between;align-items:center;gap:.5rem }
+.video-meta .title { font-size: 0.95rem; font-weight:600; color:#061028 }
+.video-meta .actions { display:flex; gap:.5rem }
+.video-meta .actions a, .video-meta .actions button { font-size:0.9rem }
+
+@media (max-width: 980px) {
+  .videos-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .videos-grid { grid-template-columns: 1fr; }
+}
+
+/* Footer */
+.site-footer {
+  background: #0b1220;
+  color: #fff;
+  padding: 3rem 0 0;
+  margin-top: 4rem;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+}
+
+.footer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+
+.footer-title {
+  color: #fff;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.footer-description {
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-link {
+  color: #fff;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.social-link:hover {
+  transform: translateY(-2px);
+}
+
+.social-link i {
+  transition: color 0.2s ease;
+}
+
+.fa-youtube:hover { color: #ff0000; }
+.fa-facebook:hover { color: #1877f2; }
+.fa-twitter:hover { color: #1da1f2; }
+.fa-instagram:hover { color: #e4405f; }
+
+.footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-nav a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-nav a:hover {
+  color: #fff;
+}
+
+
+
+.footer-bottom {
+  margin-top: 3rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Fixed right-side contact bar (WhatsApp / Telegram) */
+.contact-fixed {
+  position: fixed;
+  right: 16px;
+  top: 80%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 120;
+  pointer-events: auto;
+}
+.contact-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+  border: 1px solid rgba(2,6,23,0.06);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  color: #0b1220;
+  background: #ffffff;
+}
+.contact-btn i{font-size:1.2rem}
+.contact-btn .label{display:inline-block}
+.contact-btn:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(2,6,23,0.16)}
+
+/* WhatsApp branding */
+.contact-btn.whatsapp{border-color:rgba(37,211,102,0.18)}
+.contact-btn.whatsapp:hover{background:#25D366;color:#fff}
+.contact-btn.whatsapp:hover i{color:#fff}
+
+/* Telegram branding */
+.contact-btn.telegram{border-color:rgba(0,136,204,0.12)}
+.contact-btn.telegram:hover{background:#0088cc;color:#fff}
+.contact-btn.telegram:hover i{color:#fff}
+
+/* On small screens keep the buttons compact (circle icons) */
+@media (max-width:520px){
+  .contact-fixed{right:10px}
+  .contact-btn{padding:10px;border-radius:50%;width:44px;height:44px;justify-content:center}
+  .contact-btn .label{display:none}
+}
+
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .social-links {
+    justify-content: center;
+  }
+  
+  .footer-nav {
+    align-items: center;
+  }
+}
+
+/* Responsive */
+@media (max-width:720px){
+  .header-inner{
+    padding:.5rem;
+  }
+  .brand{
+    margin-right:1rem;
+  }
+  .nav{
+    position:relative;
+  }
+  .nav-list{
+    /* Use transitions for smooth open/close instead of toggling display directly.
+       Keep it flex so layout inside works; control visibility with max-height/opacity. */
+    display:flex;
+    position:absolute;
+    top:53px;
+    left:-58px;
+    right:0;
+    background:#0b1220;
+    padding:.75rem;
+    border-radius:8px;
+    flex-direction:column;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+    border:1px solid rgba(255,255,255,0.08);
+    overflow:hidden;
+    max-height:0; /* collapsed */
+    opacity:0;
+    transform:translateY(-6px);
+    transition: max-height 280ms cubic-bezier(.2,.9,.2,1),
+                opacity 220ms ease,
+                transform 260ms cubic-bezier(.2,.9,.2,1);
+  }
+  .nav-list.visible{
+    /* when visible, allow it to expand — large enough for list items */
+    max-height:480px;
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* Close/cancel button inside header for mobile nav: hidden by default, shown when .nav has .open */
+  .nav-close{display:none;}
+  .nav.open .nav-close{display:block}
+
+  .nav-toggle{
+    display:inline-block;
+  }
+
+  .nav-close{
+    position:absolute;
+    top:60px;
+    right:12px;
+    background:transparent;
+    border:none;
+    color:#fff;
+    font-size:1.25rem;
+    line-height:1;
+    padding:.25rem .5rem;
+    cursor:pointer;
+    z-index:60;
+    border-radius:6px;
+  }
+  .nav-close:focus{outline:2px solid rgba(255,255,255,0.12)}
+  .nav-link{
+    padding:.75rem 1rem;
+    width:100%;
+  }
+  .login-btn{
+    margin-left:auto;
+  }
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Pulse animation for paragraphs inside .container */
+
+/* Smooth fade-in / fade-out for paragraphs inside .container */
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: translateY(6px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  50%  { opacity: 1; transform: translateY(0); }
+  88%  { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+/* Apply animation only to paragraph elements with class 'lead' */
+p.lead {
+  animation: fadeInOut 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  p.lead { animation: none !important; }
+}
+

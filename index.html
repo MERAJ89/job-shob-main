@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Anchor Links — Daily Uploads</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#home">
+          <img src="channels4_profile.jpg" alt="Job Shob" class="brand-logo">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <button class="nav-toggle" aria-expanded="false" aria-controls="nav-list">Menu</button>
+          <!-- mobile-only close button (appears when nav is open) -->
+          <button class="nav-close" aria-label="Close menu" title="Close menu" hidden>✕</button>
+            <ul id="nav-list" class="nav-list">
+              <li><a href="#home" data-target="home" class="nav-link">Home</a></li>
+              <li><a href="#about" data-target="about" class="nav-link">About</a></li>
+              <li><a href="#contact" data-target="contact" class="nav-link">Contact Us</a></li>
+            </ul>
+            <button id="settings-btn" class="login-btn" aria-label="Owner Login">
+              Owner Login
+            </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section id="home" class="section">
+        <div class="home-header">
+          <h1>Job Notifications Official Link</h1>
+          <p class="lead">Live</p>
+        </div>
+
+        <section id="links-list" class="links-list">
+          <!-- Links will be rendered here by JavaScript -->
+        </section>
+      </section>
+
+      <!-- PDF Documents Section -->
+      <section id="pdfs" class="section pdfs-section">
+        <h2>Documents & PDFs</h2>
+        <p class="muted">Browse downloadable PDFs, guides and resources.</p>
+
+        <div id="pdfs-list" class="pdf-grid">
+          <!-- PDF cards will be rendered here by JavaScript -->
+        </div>
+      </section>
+
+      <!-- YouTube Videos Section -->
+      <section id="videos" class="section videos-section">
+        <h2>Latest Videos</h2>
+        <p class="muted">Watch the most recent uploads and curated tutorials.</p>
+
+        <!-- Pinned (always-visible) video will be rendered here if owner pins one -->
+        <div id="pinned-video-container"></div>
+
+        <div id="videos-list" class="videos-grid">
+          <!-- Video cards will be rendered here by JavaScript -->
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <h2>About</h2>
+        <p>Job Shob is an educational YouTube channel dedicated to providing the latest and most accurate job notifications quickly and reliably. We aim to help job seekers stay updated with all types of government and private job opportunities across various sectors.</p>
+        <p>At Job Shob, we’re dedicated to helping you stay ahead in your career journey by delivering the latest and most accurate job notifications — fast, reliable, and easy to access. Our YouTube channel and website are built with one mission: to make sure no opportunity slips past you.</p>
+        <p>Whether you’re looking for government jobs, private sector openings, banking exams, railway recruitment, SSC updates, or state-level vacancies, Job Shob covers it all in one place. We simplify complex notifications, highlight key details, and guide you through the application process so you can focus on preparation, not searching.</p>
+        <p>Our commitment is to provide authentic and verified information to every job seeker, every day. With Job Shob, you’ll never miss an update — because your success is our priority.
+
+Stay connected, stay informed, and subscribe to Job Shob today for the fastest job alerts and career updates! 🚀
+
+Would you like me to make this more SEO-friendly for Google search (e.g., add job-related keywords like “latest government jobs 2025” or “free job alerts”)?</p>
+      </section>
+
+      <section id="contact" class="section">
+        <h2>Contact Us</h2>
+        <p>Have a question or feedback? Fill out the form below and we'll get back to you.</p>
+        
+        <form id="contact-form" class="contact-form card">
+          <div class="form-group">
+            <label for="contact-name">Full Name</label>
+            <input type="text" id="contact-name" name="name" required 
+                   placeholder="Enter your full name">
+          </div>
+          
+          <div class="form-group">
+            <label for="contact-email">Email Address</label>
+            <input type="email" id="contact-email" name="email" required 
+                   placeholder="Enter your email address">
+          </div>
+          
+          <div class="form-group">
+            <label for="contact-phone">Phone Number</label>
+            <input type="tel" id="contact-phone" name="phone" 
+                   placeholder="Enter your phone number (optional)"
+                   pattern="[0-9]{10}"
+                   title="Please enter a valid 10-digit phone number">
+          </div>
+          
+          <div class="form-group">
+            <label for="contact-message">Message</label>
+            <textarea id="contact-message" name="message" required 
+                      placeholder="What would you like to tell us?"
+                      rows="4"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn">Send Message</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <!-- Settings modal (owner login + management) -->
+    <div id="modal-backdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal">
+        <button id="modal-close" class="modal-close" aria-label="Close modal" title="Close">✕</button>
+        <div class="modal-content">
+          <h3 id="modal-title">Owner Login</h3>
+
+          <div id="modal-login">
+            <p class="muted">Enter your email and password to manage links.</p>
+            <div class="form-row">
+              <input id="owner-email" type="email" placeholder="Owner email" aria-label="Owner email">
+            </div>
+            <div class="form-row">
+              <input id="owner-password" type="password" placeholder="Owner password" aria-label="Owner password">
+              <button id="btn-login" class="btn">Login</button>
+            </div>
+            <div class="muted small">Click the gear icon in the header to access owner controls.</div>
+          </div>
+
+          <div id="modal-owner-panel" class="hidden" aria-hidden="true">
+            <div class="owner-header">
+              <h4>Owner Panel</h4>
+              <div>
+                <button id="btn-logout" class="btn btn-ghost">Logout</button>
+              </div>
+            </div>
+            <form id="add-link-form" class="form-grid">
+              <input id="link-title" required placeholder="Title (e.g., Today's Anchor)" />
+              <input id="link-url" required placeholder="https://example.com" />
+              <input id="link-date" type="date" />
+              <div class="form-actions">
+                <button type="submit" class="btn">Add Link</button>
+              </div>
+            </form>
+            
+            <!-- Add YouTube video form for owner (owner-only panel) -->
+            <form id="add-video-form" class="form-grid" style="margin-top:.6rem;align-items:center;">
+              <input id="video-title" placeholder="Video title (e.g., Exam Update)" />
+              <input id="video-url" placeholder="YouTube URL or ID (e.g., https://youtu.be/ID or ID)" />
+              <div class="form-actions">
+                <button type="submit" class="btn">Add Video</button>
+              </div>
+            </form>
+            <!-- Add PDF/document form for owner -->
+            <form id="add-pdf-form" class="form-grid" style="margin-top:.6rem;align-items:center;" enctype="multipart/form-data">
+              <input id="pdf-title" placeholder="PDF title (e.g., Exam Syllabus)" />
+              <!-- Owner can upload a PDF file from their device -->
+              <input id="pdf-file" type="file" accept="application/pdf" />
+              <div class="form-actions">
+                <button type="submit" class="btn">Upload PDF</button>
+              </div>
+            </form>
+            <hr />
+            <div id="owner-links-list">
+              <!-- Owner can delete links here -->
+            </div>
+            <hr />
+            <div id="change-password" class="change-password">
+              <h5>Change owner password</h5>
+              <div class="muted small">(Passwords are stored as a hash in your browser — this is still client-side only.)</div>
+              <div class="form-row" style="margin-top:.5rem">
+                <input id="current-password" type="password" placeholder="Current password">
+              </div>
+              <div class="form-row" style="margin-top:.5rem">
+                <input id="new-password" type="password" placeholder="New password">
+                <input id="confirm-password" type="password" placeholder="Confirm password">
+              </div>
+              <div class="form-actions" style="margin-top:.5rem">
+                <button id="btn-change-password" class="btn btn-ghost">Change Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="container footer-content">
+        <div class="footer-section">
+          <h3 class="footer-title">Job Shob</h3>
+          <p class="footer-description">Your trusted source for the latest job notifications and career opportunities.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h4 class="footer-title">Connect With Us</h4>
+          <div class="social-links">
+            <a href="https://youtube.com/@jobshob" class="social-link" aria-label="YouTube">
+              <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://facebook.com/jobshob" class="social-link" aria-label="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/jobshob" class="social-link" aria-label="Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://instagram.com/jobshob" class="social-link" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h4 class="footer-title">Quick Links</h4>
+          <nav class="footer-nav">
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+          </nav>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="container">
+          <p>&copy; <span id="year"></span> Job Shob. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="main.js"></script>
+  <!-- Socket.IO client (served by the backend) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- Configuration: Set API_BASE_URL for deployment -->
+  <!-- Uncomment the line below and update URL when deploying frontend separately from backend -->
+  <script>
+    // For Vercel frontend + Render backend deployment, uncomment and set:
+    // window.API_BASE_URL = 'https://job-shob-backend.onrender.com';
+    // For local or same-origin deployment, leave API_BASE_URL undefined (will default to '')
+  </script>
+    <!-- Fixed contact bar: WhatsApp and Telegram -->
+    <div id="contact-fixed" class="contact-fixed" aria-hidden="false">
+      <!-- Replace the hrefs below with your actual WhatsApp number and Telegram username -->
+      <a class="contact-btn whatsapp" href="https://wa.me/+916306273017" target="_blank" rel="noopener noreferrer" aria-label="Contact on WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+        <span class="label">WhatsApp</span>
+      </a>
+      <a class="contact-btn telegram" href="https://web.telegram.org/k/#@jobshob" target="_blank" rel="noopener noreferrer" aria-label="Contact on Telegram">
+        <i class="fab fa-telegram" aria-hidden="true"></i>
+        <span class="label">Telegram</span>
+      </a>
+    </div>
+  </body>
+  
+</html>
+
