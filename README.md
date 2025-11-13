@@ -1,31 +1,60 @@
-# AnchorLinks — single-page owner-only uploads
+# Job Shob — Server
 
-This is a small single-page site that allows the site owner to upload daily anchor links. It's a static client-side demo that stores data in `localStorage`.
+This repository contains a production-ready backend scaffold for the Job Shob single-page app.
 
 Features
-- Single-page layout with Home / About / Contact sections
-- Owner login (client-side) to add daily links (title, URL, optional date)
-- Links are stored in the browser's `localStorage` and shown on the Home section
-- Responsive and mobile-friendly
+- Node.js + Express API
+- MongoDB (Mongoose)
+- JWT authentication (bcrypt)
+- AWS S3 presigned uploads (SDK v3)
+- Socket.IO real-time updates
+- Basic validation with Joi
+- Rate limiting and security headers (helmet)
 
-How to run
-1. Open `index.html` in your browser (double-click). For improved behavior (CORS, nicer local testing), serve the folder using Python:
+## Quick start
+
+1. Copy `.env.example` to `.env` and fill values (Mongo URI, JWT_SECRET, S3 settings, FRONTEND_ORIGIN)
+
+2. Install dependencies:
 
 ```powershell
-# from the project folder (Windows PowerShell)
-python -m http.server 8000 --directory .;
-# then open http://localhost:8000 in your browser
+cd server
+npm install
 ```
 
-Owner password
-- By default the owner password is set in `main.js`:
+3. Start dev server:
 
-```js
-const OWNER_PASSWORD = 'owner123';
+```powershell
+npm run dev
 ```
 
-- Change that value to a secure password before using this site. Note: this demo uses a client-side password and is not secure for public production use.
+The server will create an initial owner user if `OWNER_EMAIL` and `OWNER_PASSWORD` are present in env.
 
-Notes and next steps
-- For a production site, implement server-side authentication and a backend database.
-- Consider protecting the admin actions behind a proper login (JWT/session) and serve links from a server.
+## Environment variables
+See `.env.example` for required variables. Important:
+- `JWT_SECRET` should be a strong secret.
+- `S3_BUCKET` and AWS keys must be valid to use presigned uploads.
+
+## S3 CORS
+Your S3 bucket needs CORS allowing PUT from your frontend origin for presigned uploads. Example CORS rule:
+
+```xml
+<CORSConfiguration>
+  <CORSRule>
+    <AllowedOrigin>http://localhost:3000</AllowedOrigin>
+    <AllowedMethod>PUT</AllowedMethod>
+    <AllowedMethod>GET</AllowedMethod>
+    <AllowedHeader>*</AllowedHeader>
+    <ExposeHeader>ETag</ExposeHeader>
+  </CORSRule>
+</CORSConfiguration>
+```
+
+## Tests
+
+```powershell
+npm test
+```
+
+## Notes
+- For production deploy, use HTTPS (TLS), set strict CORS, and keep environment secrets safe.
