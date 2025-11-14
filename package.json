@@ -11,6 +11,9 @@
     "lint": "echo \"Add linter command\"",
     "test": "jest --runInBand"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -33,5 +36,3 @@
     "supertest": "^6.3.3"
   }
 }
-
-
