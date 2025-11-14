@@ -1,6 +1,4 @@
-"scripts": {
-  "start": "node src/index.js"
-}
+
 
 {
   "name": "job-shob-server",
@@ -35,4 +33,5 @@
     "supertest": "^6.3.3"
   }
 }
+
 
