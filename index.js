@@ -21,6 +21,9 @@ const User = require('./models/User');
 const bcrypt = require('bcrypt');
 
 async function start() {
+  // Track whether MongoDB connection succeeded. If false, we will run the server
+  // in a degraded mode where API endpoints return 503 instead of crashing the process.
+  let dbConnected = true;
   // Connect MongoDB (validate URI first)
   if (!config.mongoUri) {
     console.error('Missing MongoDB URI. Please set MONGO_URI in your environment or server/server.env');
@@ -68,31 +71,51 @@ async function start() {
       }
     }
 
-    process.exit(1);
+    // Do not exit the process here. Start the server in degraded mode so the
+    // frontend (static assets) and health endpoint remain available. API routes
+    // that require DB access will return 503.
+    dbConnected = false;
   }
 
-  // Ensure initial owner user exists if env provided
-  if (config.ownerEmail && config.ownerPassword) {
-    const exists = await User.findOne({ email: config.ownerEmail }).exec();
-    if (!exists) {
-      const saltRounds = 12;
-      const hash = await bcrypt.hash(config.ownerPassword, saltRounds);
-      await User.create({ email: config.ownerEmail, passwordHash: hash, role: 'owner' });
-      console.log('Initial owner user created:', config.ownerEmail);
+  // Ensure initial owner user exists if env provided and the DB connection is available
+  if (dbConnected && config.ownerEmail && config.ownerPassword) {
+    try {
+      const exists = await User.findOne({ email: config.ownerEmail }).exec();
+      if (!exists) {
+        const saltRounds = 12;
+        const hash = await bcrypt.hash(config.ownerPassword, saltRounds);
+        await User.create({ email: config.ownerEmail, passwordHash: hash, role: 'owner' });
+        console.log('Initial owner user created:', config.ownerEmail);
+      }
+    } catch (err) {
+      console.error('Failed to ensure initial owner user:', err && err.message ? err.message : err);
     }
+  } else if (!dbConnected) {
+    console.warn('Database not connected — skipping initial owner user creation.');
   }
 
   const app = express();
+  // If DB is not connected, short-circuit API requests with a 503 so callers
+  // get a clear error instead of causing unhandled exceptions from model code.
+  app.use('/api', (req, res, next) => {
+    if (!dbConnected) {
+      return res.status(503).json({ ok: false, error: 'Service temporarily unavailable: database connection failed' });
+    }
+    next();
+  });
   const server = http.createServer(app);
   const { Server } = require('socket.io');
   const io = new Server(server, { cors: { origin: config.frontendOrigin } });
   sockets.init(io);
 
   // Basic middlewares
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: false
+  }));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
-  app.use(cors({ origin: config.frontendOrigin }));
+  // Allow CORS from all origins for YouTube embeds
+  app.use(cors({ origin: '*', credentials: false }));
 
   // Rate limiter
   const limiter = rateLimit({ windowMs: 60 * 1000, max: 120 });

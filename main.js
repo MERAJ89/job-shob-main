@@ -569,21 +569,54 @@ function handleAddPdf(e) {
     (async () => {
       try {
         const base = getApiBase();
+        console.log('Starting PDF upload for:', file.name);
+        
         // Request presigned upload URL
+        console.log('Requesting presign URL from:', base + '/api/pdfs/presign');
         const presignRes = await fetch(base + '/api/pdfs/presign', {
           method: 'POST',
           headers: Object.assign({ 'Content-Type': 'application/json' }, getAuthHeaders()),
           body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size })
         });
+        console.log('Presign response status:', presignRes.status);
+        
         if (!presignRes.ok) {
           if (presignRes.status === 401) { clearToken(); applyAuthState(false); return alert('Unauthorized - please login again'); }
           const body = await presignRes.json().catch(() => ({}));
           return alert('Failed to get presigned URL: ' + (body.error || presignRes.statusText));
         }
-        const { uploadUrl, fileKey } = await presignRes.json();
-        // Upload file directly to S3 using the presigned URL
-        const uploadRes = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
-        if (!uploadRes.ok) return alert('Failed to upload PDF to storage');
+        const presignData = await presignRes.json();
+        const { uploadUrl, fileKey, storage } = presignData;
+        console.log('Presign successful. uploadUrl:', uploadUrl, 'storage:', storage);
+        
+        // Upload file to storage (S3 or local)
+        let uploadRes;
+        if (storage === 'local') {
+          // For local storage, we need to include auth headers
+          console.log('Using local storage, uploading to:', uploadUrl);
+          uploadRes = await fetch(uploadUrl, { 
+            method: 'PUT', 
+            headers: Object.assign({ 'Content-Type': file.type }, getAuthHeaders()),
+            body: file 
+          });
+        } else {
+          // For S3, use the presigned URL without auth headers
+          console.log('Using S3 storage, uploading to:', uploadUrl);
+          uploadRes = await fetch(uploadUrl, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': file.type }, 
+            body: file 
+          });
+        }
+        
+        console.log('Upload response status:', uploadRes.status);
+        if (!uploadRes.ok) {
+          const errorBody = await uploadRes.text().catch(() => '');
+          console.error('Upload failed. Status:', uploadRes.status, 'Error:', errorBody);
+          return alert('Failed to upload PDF to storage: ' + (uploadRes.statusText || errorBody));
+        }
+        
+        console.log('Upload successful. Saving metadata...');
         // Save metadata through server
         const saveRes = await fetch(base + '/api/pdfs', {
           method: 'POST',
@@ -595,11 +628,13 @@ function handleAddPdf(e) {
           return alert('Failed to register PDF: ' + (body.error || saveRes.statusText));
         }
         const pdf = await saveRes.json();
+        console.log('PDF registered successfully');
         window._pdfs = window._pdfs || [];
         window._pdfs.unshift(pdf);
         savePdfs();
         renderPdfs();
         e.target.reset();
+        alert('PDF uploaded successfully!');
       } catch (err) {
         console.error('PDF upload failed', err);
         alert('PDF upload failed: ' + err.message);
@@ -780,7 +815,24 @@ function deleteFileFromIDB(id) {
   });
 }
 
-function renderVideos() {
+// Load YouTube IFrame API (returns a promise that resolves to window.YT)
+function loadYouTubeAPI() {
+  return new Promise((resolve) => {
+    if (window.YT && window.YT.Player) return resolve(window.YT);
+    const existing = document.querySelector('script[data-youtube-api-global]');
+    if (existing) {
+      window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+      return;
+    }
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    tag.setAttribute('data-youtube-api-global', '1');
+    window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+    document.head.appendChild(tag);
+  });
+}
+
+async function renderVideos() {
   const container = document.getElementById('videos-list');
   if (!container) return;
   container.innerHTML = '';
@@ -796,11 +848,49 @@ function renderVideos() {
 
     const embedWrap = document.createElement('div');
     embedWrap.className = 'video-embed';
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${v.youtubeId}`;
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframe.allowFullscreen = true;
-    embedWrap.appendChild(iframe);
+    
+    // Create thumbnail with play button
+    const thumbnail = document.createElement('div');
+    thumbnail.style.position = 'absolute';
+    thumbnail.style.inset = '0';
+    thumbnail.style.width = '100%';
+    thumbnail.style.height = '100%';
+    thumbnail.style.background = 'url("https://img.youtube.com/vi/' + v.youtubeId + '/maxresdefault.jpg") center/cover';
+    thumbnail.style.cursor = 'pointer';
+    thumbnail.style.display = 'flex';
+    thumbnail.style.alignItems = 'center';
+    thumbnail.style.justifyContent = 'center';
+    
+    const playBtn = document.createElement('div');
+    playBtn.style.width = '80px';
+    playBtn.style.height = '80px';
+    playBtn.style.background = '#ff0000';
+    playBtn.style.borderRadius = '50%';
+    playBtn.style.display = 'flex';
+    playBtn.style.alignItems = 'center';
+    playBtn.style.justifyContent = 'center';
+    playBtn.style.opacity = '0.9';
+    playBtn.innerHTML = '<span style="width:0;height:0;border-left:30px solid white;border-top:20px solid transparent;border-bottom:20px solid transparent;margin-left:5px;"></span>';
+    playBtn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+    playBtn.style.transition = 'transform 0.2s, opacity 0.2s';
+    thumbnail.appendChild(playBtn);
+    
+    // Hover effect
+    thumbnail.addEventListener('mouseenter', () => {
+      playBtn.style.transform = 'scale(1.1)';
+      playBtn.style.opacity = '1';
+    });
+    thumbnail.addEventListener('mouseleave', () => {
+      playBtn.style.transform = 'scale(1)';
+      playBtn.style.opacity = '0.9';
+    });
+    
+    // On click, open the video in a new tab (no autoplay attempts)
+    thumbnail.addEventListener('click', () => {
+      window.open(`https://www.youtube.com/watch?v=${v.youtubeId}`, '_blank', 'noopener,noreferrer');
+    });
+    
+    embedWrap.appendChild(thumbnail);
 
     const meta = document.createElement('div');
     meta.className = 'video-meta';
@@ -836,6 +926,8 @@ function renderVideos() {
     card.appendChild(meta);
     container.appendChild(card);
   });
+
+    // No autoplay on load — videos open in a new tab when clicked.
 }
 
 function deleteVideo(id) {
@@ -899,12 +991,37 @@ function renderPinnedVideo() {
 
   const embedWrap = document.createElement('div');
   embedWrap.className = 'video-embed';
-  const iframe = document.createElement('iframe');
-  // autoplay+mute+loop (use playlist param for loop to work)
-  iframe.src = `https://www.youtube.com/embed/${p.youtubeId}?rel=0&autoplay=1&mute=1&loop=1&playlist=${p.youtubeId}`;
-  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-  iframe.allowFullscreen = true;
-  embedWrap.appendChild(iframe);
+
+  // Render a safe thumbnail for the pinned video. Clicking opens YouTube in a new tab.
+  const thumbnail = document.createElement('div');
+  thumbnail.style.position = 'absolute';
+  thumbnail.style.inset = '0';
+  thumbnail.style.width = '100%';
+  thumbnail.style.height = '100%';
+  thumbnail.style.background = 'url("https://img.youtube.com/vi/' + p.youtubeId + '/maxresdefault.jpg") center/cover';
+  thumbnail.style.cursor = 'pointer';
+  thumbnail.style.display = 'flex';
+  thumbnail.style.alignItems = 'center';
+  thumbnail.style.justifyContent = 'center';
+
+  const playBtn = document.createElement('div');
+  playBtn.style.width = '100px';
+  playBtn.style.height = '100px';
+  playBtn.style.background = '#ff0000';
+  playBtn.style.borderRadius = '50%';
+  playBtn.style.display = 'flex';
+  playBtn.style.alignItems = 'center';
+  playBtn.style.justifyContent = 'center';
+  playBtn.style.opacity = '0.95';
+  playBtn.innerHTML = '<span style="width:0;height:0;border-left:36px solid white;border-top:24px solid transparent;border-bottom:24px solid transparent;margin-left:6px;"></span>';
+  playBtn.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+
+  thumbnail.appendChild(playBtn);
+  thumbnail.addEventListener('click', () => {
+    window.open(`https://www.youtube.com/watch?v=${p.youtubeId}`, '_blank', 'noopener,noreferrer');
+  });
+
+  embedWrap.appendChild(thumbnail);
 
   const meta = document.createElement('div');
   meta.className = 'video-meta';

@@ -5,7 +5,19 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#fff
 .container{max-width:1000px;margin:0 auto;padding:1rem}
 
 /* Premium hero */
-.home-header h1{font-size:1.9rem;margin:0;color:#061028;letter-spacing:-0.01em}
+.home-header h1{
+  /* Responsive font size: stays legible on small and large screens */
+  font-size: clamp(1.4rem, 3.5vw, 2.6rem);
+  margin:0;
+  color:#ffffff; /* white text for strong contrast */
+  letter-spacing:-0.01em;
+  background: linear-gradient(180deg,#ab2b2b 0%, #971f1f 100%);
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  display: inline-block;
+  box-shadow: 0 6px 18px rgba(10,10,10,0.08);
+  line-height:1.15;
+}
 .lead{font-size:1.05rem}
 
 /* Header */
@@ -90,6 +102,15 @@ body{margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:#fff
 .section{padding:2rem 0}
 .home-header{display:flex;flex-direction:column;gap:.25rem}
 .lead{color:red}
+
+/* Center the hero title only on desktop-sized viewports */
+@media (min-width: 981px) {
+  .home-header {
+    /* Keep vertical flow but center children horizontally */
+    align-items: center;
+    text-align: center;
+  }
+}
 
 .section p{
   font-size: larger;
@@ -333,6 +354,8 @@ input{padding:.6rem .7rem;border:1px solid #e6e9ef;border-radius:8px;font-size:0
   width: 100%;
   padding-top: 56.25%; /* 16:9 aspect */
   background: #000;
+  overflow: hidden;
+  border-radius: 4px;
 }
 .video-embed iframe {
   position: absolute;

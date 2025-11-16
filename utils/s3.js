@@ -3,7 +3,22 @@ const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
 const config = require('../config');
 
-const s3Client = new S3Client({ region: config.s3.region });
+// Support LocalStack endpoint for local testing
+const s3Config = {
+  region: config.s3.region,
+  credentials: {
+    accessKeyId: config.s3.accessKeyId,
+    secretAccessKey: config.s3.secretAccessKey
+  }
+};
+
+// If AWS_ENDPOINT_URL is set (for LocalStack), add it to config
+if (config.s3.endpoint) {
+  s3Config.endpoint = config.s3.endpoint;
+  s3Config.forcePathStyle = true; // Required for LocalStack
+}
+
+const s3Client = new S3Client(s3Config);
 
 async function createPresignedUploadUrl({ key, contentType, expiresIn = 900 }) {
   const cmd = new PutObjectCommand({

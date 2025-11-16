@@ -2,15 +2,18 @@ const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
 
-// Load .env from project root if present, otherwise try server/server.env
-const defaultEnvPath = path.resolve(__dirname, '..', '.env');
+// Load .env from server directory first, then project root
 const serverEnvPath = path.resolve(__dirname, '..', 'server.env');
-if (fs.existsSync(defaultEnvPath)) {
-  dotenv.config({ path: defaultEnvPath });
-} else if (fs.existsSync(serverEnvPath)) {
+const rootEnvPath = path.resolve(__dirname, '..', '..', '.env');
+
+if (fs.existsSync(serverEnvPath)) {
+  console.log('Loading env from:', serverEnvPath);
   dotenv.config({ path: serverEnvPath });
+} else if (fs.existsSync(rootEnvPath)) {
+  console.log('Loading env from:', rootEnvPath);
+  dotenv.config({ path: rootEnvPath });
 } else {
-  // One last try: load any default .env (allow process.env set externally)
+  console.log('No .env or server.env found, using process.env');
   dotenv.config();
 }
 
@@ -26,7 +29,8 @@ module.exports = {
     region: process.env.S3_REGION,
     bucket: process.env.S3_BUCKET,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    endpoint: process.env.AWS_ENDPOINT_URL // For LocalStack or S3-compatible services
   },
   frontendOrigin: process.env.FRONTEND_ORIGIN || '*'
 };
